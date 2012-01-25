@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<dialog id="classification-dialog" title="Select classification" xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	buttons="accept,cancel"
+	buttonlabelaccept="Send"
+	onload="onLoad();"
+	oncancel="return true;"
+	ondialogaccept="return onAccept();">
+  <script type="application/javascript" src="chrome://security-classifier/content/classification_dialog.js" />
+  <dialogheader title="Classify Message" description="Select a security classification and optional privacy marking" id="title-header" />
+  <groupbox>
+    <label id="security" value="Security" />
+    <menulist id="security-list">
+    </menulist>
+    <label id="privacy" value="Privacy" />
+    <menulist  id="privacy-list">
+    </menulist>
+  </groupbox>
+</dialog>

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<overlay id="security-classifier-composer-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/javascript">
+    Components.utils.import("resource://security-classifier/conversations_plugin.js");
+  </script>
+</overlay>

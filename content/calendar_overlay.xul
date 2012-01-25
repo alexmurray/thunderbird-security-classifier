@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<overlay id="security-classifier-composer-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+ <script type="application/javascript" src="chrome://security-classifier/content/calendar_overlay.js"/>
+ <dialog id="calendar-event-dialog">
+   <grid id="event-grid">
+   <rows id="event-grid-rows">
+     <row id="event-grid-security-row" insertafter="event-grid-category-color-row">
+       <label value="Classification:" accesskey="I" control="security-list" />
+       <hbox>
+	 <menulist id="security-list" oncommand="return onSecurityListCommand();" >
+	 </menulist>
+	 <menulist id="privacy-list" oncommand="return onPrivacyListCommand();">
+	 </menulist>
+       </hbox>
+     </row>
+   </rows>
+   </grid>
+ </dialog>
+</overlay>

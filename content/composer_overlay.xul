@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<overlay id="security-classifier-composer-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+ <script type="application/javascript" src="chrome://security-classifier/content/composer_overlay.js"/>
+ <window id="msgcomposeWindow">
+ </window>
+ <vbox id="addresses-box">
+   <hbox id="securitys-box">
+     <hbox style="width: 9em;" pack="end" align="center">
+       <label value="Classification:" accesskey="C" control="security-list" />
+     </hbox>
+     <menulist id="security-list" oncommand="return onSecurityListCommand();">
+     </menulist>
+     <menulist id="privacy-list" oncommand="return onPrivacyListCommand();">
+     </menulist>
+   </hbox>
+ </vbox>
+</overlay>
