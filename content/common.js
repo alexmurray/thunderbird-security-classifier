@@ -1,7 +1,5 @@
-var EXPORTED_SYMBOLS = ["debug", "subjectIsClassified",
-			"extractClassification",
-			"classifySubject", "askForClassification",
-			"setupLists"];
+var EXPORTED_SYMBOLS = ["debug", "extractClassification", "classifySubject",
+			"askForClassification", "setupLists"];
 
 const Ci = Components.interfaces;
 const Cc = Components.classes;
@@ -17,13 +15,6 @@ function debug(msg) {
             .getService(Ci.nsIConsoleService)
 	    .logStringMessage("tb-security-classifier: " + msg);
     }
-}
-
-// checks subject is classified
-function subjectIsClassified(subject) {
-    // check subject contains ' [SEC=XXX]' at end
-    var re = / \[SEC=[A-Z-]+:?([A-Z]+)?\]/;
-    return subject.match(re);
 }
 
 function stripClassification (subject) {
