@@ -1,4 +1,9 @@
-Components.utils.import("resource://security-classifier/common.js");
+const Ci = Components.interfaces;
+const Cc = Components.classes;
+const Cu = Components.utils;
+const Cr = Components.results;
+
+Cu.import("resource://security-classifier/common.js");
 
 function classifyOutgoingMessage() {
     var msgcomposeWindow = document.getElementById("msgcomposeWindow");
@@ -116,7 +121,7 @@ function subjectChanged() {
 	/* indexOf returns -1 if not found, and starts at 0 if found,
 	 * but our list has 0 as empty element so incrementing for all
 	 * cases is fine */
-	var i = getSecurityMarkings().indexOf(classification.security) + 1;
+	var i = Prefs["security-markings"].indexOf(classification.security) + 1;
 	debug("selecting security-list index " + i);
 	document.getElementById("security-list").selectedIndex = i;
 	if (i >= 0) {

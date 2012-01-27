@@ -2,5 +2,5 @@
 <vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <setting pref="extensions.security-classifier.security-markings" type="string" title="Security Markings" description="A comma-separated list of security markings" />
   <setting pref="extensions.security-classifier.privacy-markings" type="string" title="Privacy Markings" description="A comma-separated list of privacy markings" />
-  <setting pref="extensions.security-classifier.debug" type="bool" title="Enable Debugging" description="Show debugging output in the Error Console" />
+  <setting pref="extensions.security-classifier.logging-enabled" type="bool" title="Enable Debugging" description="Show debugging output in the Error Console" />
 </vbox>

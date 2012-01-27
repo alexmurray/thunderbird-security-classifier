@@ -1,4 +1,9 @@
-Components.utils.import("resource://security-classifier/common.js");
+const Ci = Components.interfaces;
+const Cc = Components.classes;
+const Cu = Components.utils;
+const Cr = Components.results;
+
+Cu.import("resource://security-classifier/common.js");
 
 function onLoad() {
     setupLists(document.getElementById("security-list"),

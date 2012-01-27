@@ -1,6 +1,11 @@
 var EXPORTED_SYMBOLS = [];
 
-Components.utils.import("resource://security-classifier/common.js");
+const Ci = Components.interfaces;
+const Cc = Components.classes;
+const Cu = Components.utils;
+const Cr = Components.results;
+
+Cu.import("resource://security-classifier/common.js");
 
 let hook = {
     /* support stable conversations */
@@ -10,8 +15,8 @@ let hook = {
 		/* hack to get params since they're not passed in
 		 * onMessageBeforeSend -
 		 * https://github.com/protz/GMail-Conversation-View/pull/547#issuecomment-3561102 */
-		let w = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-		    .getService(Components.interfaces.nsIWindowMediator)
+		let w = Cc["@mozilla.org/appshell/window-mediator;1"]
+		    .getService(Ci.nsIWindowMediator)
 		    .getMostRecentWindow("mail:3pane")
 		let tabmail = w.document.getElementById("tabmail");
 		let contentWindow = (tabmail.currentTabInfo.mode.type != "chromeTab" ?
@@ -68,7 +73,7 @@ let hook = {
 }
 
 try {
-    Components.utils.import("resource://conversations/hook.js");
+    Cu.import("resource://conversations/hook.js");
     registerHook(hook);
 } catch (e) {
     /* catch exception so we don't pollute error console when

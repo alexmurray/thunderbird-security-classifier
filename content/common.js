@@ -1,29 +1,22 @@
-var EXPORTED_SYMBOLS = ["getSecurityMarkings", "getPrivacyMarkings",
-			"debug", "subjectIsClassified",
+var EXPORTED_SYMBOLS = ["debug", "subjectIsClassified",
 			"extractClassification",
 			"classifySubject", "askForClassification",
 			"setupLists"];
 
+const Ci = Components.interfaces;
+const Cc = Components.classes;
+const Cu = Components.utils;
+const Cr = Components.results;
+
+Cu.import("resource://security-classifier/common.js");
+Cu.import("resource://security-classifier/prefs.js");
+
 function debug(msg) {
-    if (Components.classes["@mozilla.org/preferences-service;1"]
-	.getService(Components.interfaces.nsIPrefService)
-	.getBranch("extensions.security-classifier.").getBoolPref("debug")){
-	Components.classes["@mozilla.org/consoleservice;1"]
-            .getService(Components.interfaces.nsIConsoleService)
+    if (Prefs["logging-enabled"]){
+	Cc["@mozilla.org/consoleservice;1"]
+            .getService(Ci.nsIConsoleService)
 	    .logStringMessage("tb-security-classifier: " + msg);
     }
-}
-
-function getSecurityMarkings() {
-    return Array.map(Components.classes["@mozilla.org/preferences-service;1"]
-		     .getService(Components.interfaces.nsIPrefService)
-		     .getBranch("extensions.security-classifier.").getCharPref("security-markings").split(","), String.trim).filter(String.trim);
-}
-
-function getPrivacyMarkings() {
-    return Array.map(Components.classes["@mozilla.org/preferences-service;1"]
-		     .getService(Components.interfaces.nsIPrefService)
-		     .getBranch("extensions.security-classifier.").getCharPref("privacy-markings").split(","), String.trim).filter(String.trim);
 }
 
 // checks subject is classified
@@ -77,13 +70,13 @@ function askForClassification(parent) {
 
     if (!parent) {
 	/* get main window if none supplied */
-	parent = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-            .getService(Components.interfaces.nsIWindowMediator)
+	parent = Cc["@mozilla.org/appshell/window-mediator;1"]
+            .getService(Ci.nsIWindowMediator)
             .getMostRecentWindow("mail:3pane")
     }
     /* use window-watcher to open window */
-    Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-        .getService(Components.interfaces.nsIWindowWatcher)
+    Cc["@mozilla.org/embedcomp/window-watcher;1"]
+        .getService(Ci.nsIWindowWatcher)
 	.openWindow(parent,
 		    "chrome://security-classifier/content/classification_dialog.xul",
 		    "_blank", "chrome,dialog,modal,resizeable=yes", classification);
@@ -95,13 +88,13 @@ function setupLists(securityList, privacyList) {
     securityList.removeAllItems();
     /* add an empty one so user can deselect current value */
     securityList.appendItem("");
-    for (let [i, security] in Iterator(getSecurityMarkings())) {
+    for (let [i, security] in Iterator(Prefs["security-markings"])) {
 	securityList.appendItem(security);
     }
     securityList.selectedIndex = 0;
     privacyList.removeAllItems();
     privacyList.appendItem("");
-    for (let [i, privacy] in Iterator(getPrivacyMarkings())) {
+    for (let [i, privacy] in Iterator(Prefs["privacy-markings"])) {
 	privacyList.appendItem(privacy);
     }
     privacyList.selectedIndex = 0;
