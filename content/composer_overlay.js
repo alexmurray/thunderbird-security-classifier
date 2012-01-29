@@ -4,15 +4,19 @@ const Cu = Components.utils;
 const Cr = Components.results;
 
 Cu.import("resource://security-classifier/common.js");
+Cu.import("resource://security-classifier/prefs.js");
 
 function classifyOutgoingMessage() {
     var msgcomposeWindow = document.getElementById("msgcomposeWindow");
     var msg_type = msgcomposeWindow.getAttribute("msgtype");
 
+    debug("classifyOutgoingMessage");
     /* only classify when this is an actual send event since we
        sometimes get save events etc which we don't want to classify
        on */
-    if (msg_type == nsIMsgCompDeliverMode.Now || msg_type == nsIMsgCompDeliverMode.Later) {
+    if (msg_type == nsIMsgCompDeliverMode.Now ||
+	msg_type == nsIMsgCompDeliverMode.Later) {
+	debug("classifyOutgoingMessage: classifying...");
 	var classification = { security: msgcomposeWindow._security,
 			       privacy: msgcomposeWindow._privacy };
 
@@ -26,7 +30,39 @@ function classifyOutgoingMessage() {
 	 * updating widgets */
 	gMsgCompose.compFields.subject = updateSubject();
 
+	debug("classifyOutgoingMessage: classification: " + classification.security);
 	if (classification.security) {
+	    /* see if want to warn on sending classified email to
+	     * external recipients if this is not unclassified -
+	     * assume unclassified is the first element in
+	     * security-markings */
+	    debug("Message is classified: " + classification.security +
+		  "[" + Prefs["security-markings"].indexOf(classification.security) +
+		  "]");
+	    if (Prefs["warn-external-classified"] &&
+		Prefs["security-markings"].indexOf(classification.security) > 0) {
+		debug("Checking for external recipients...");
+		/* to, cc and bcc are strings of comma-separated email addresses */
+		for each (recipients in [gMsgCompose.compFields.to,
+					 gMsgCompose.compFields.cc,
+					 gMsgCompose.compFields.bcc]) {
+		    external = externalRecipients(recipients);
+		    if (external) {
+			if (!Cc["@mozilla.org/embedcomp/prompt-service;1"]
+			    .getService(Ci.nsIPromptService)
+			    .confirm(window,
+				     "External recipients for classified email",
+				     "This " + classification.security + " " +
+				     "email is addressed to external " +
+				     "recipients (outside of the " +
+				     Prefs["internal-domain"] + " " +
+				     "domain) - " +
+				     "are you sure you want to do this?")) {
+			    return false;
+			}
+		    }
+		}
+	    }
 	    /* set X-Protective-Marking header as per Email Protective Marking
 	       Standard for the Australian Government October 2005 -
 	       http://www.finance.gov.au/e-government/security-and-authentication/docs/Email_Protective.pdf */
@@ -59,9 +95,14 @@ function classifyOutgoingMessage() {
 function composeSendMessageEventHandler(event) {
     /* try and classify - if that succeeds then set headers and
      * send */
-    var ret = classifyOutgoingMessage();
-    if (!ret) {
-	/* stop sending */
+    try {
+	var ret = classifyOutgoingMessage();
+	if (!ret) {
+	    /* stop sending */
+	    event.preventDefault();
+	}
+    } catch (e) {
+	debug("ERROR: " + e);
 	event.preventDefault();
     }
 }

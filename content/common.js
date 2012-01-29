@@ -1,5 +1,6 @@
 var EXPORTED_SYMBOLS = ["debug", "extractClassification", "classifySubject",
-			"askForClassification", "setupLists"];
+			"askForClassification", "setupLists",
+			"externalRecipients"];
 
 const Ci = Components.interfaces;
 const Cc = Components.classes;
@@ -89,4 +90,22 @@ function setupLists(securityList, privacyList) {
 	privacyList.appendItem(privacy);
     }
     privacyList.selectedIndex = 0;
+}
+
+function externalRecipients(recipients) {
+    /* extract server parts of addresses and compare this to the
+     * internal-domain */
+    debug("Checking recipients: " + recipients);
+    for each (match in recipients.match(/@[a-z0-9._-]+/gi)) {
+	debug("checking match: " + match);
+	/* check the server part of each email - strip @ which is
+	 * first char */
+	var server = match.slice(1);
+	debug("Checking recipient server: " + server);
+	if (!(server.match(Prefs["internal-domain"]))) {
+	    debug("EXTERNAL SERVER: " + server);
+	    return true;
+	}
+    }
+    return false;
 }

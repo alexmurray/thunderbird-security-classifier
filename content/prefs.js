@@ -14,6 +14,8 @@ const gPrefBranch = Cc["@mozilla.org/preferences-service;1"]
 
 function PrefManager() {
     this["logging-enabled"] = prefsService.getBoolPref("logging-enabled");
+    this["warn-external-classified"] = prefsService.getBoolPref("warn-external-classified");
+    this["internal-domain"] = prefsService.getCharPref("internal-domain");
     this["security-markings"] = [];
     for each (s in this.split(prefsService.getCharPref("security-markings")))
 	this["security-markings"].push(s);
@@ -52,12 +54,18 @@ PrefManager.prototype = {
 	    return;
 
 	switch (aData) {
-	case "logging-enabled": {
-            let v = prefsService.getBoolPref(aData);
-            this[aData] = v;
-            [x(aData, v) for each (x in this.watchers)];
+	case "logging-enabled":
+	case "warn-external-classified":
+            let b = prefsService.getBoolPref(aData);
+            this[aData] = b;
+            [x(aData, b) for each (x in this.watchers)];
             break;
-	}
+
+	case "internal-domain":
+            let c = prefsService.getCharPref(aData);
+            this[aData] = c;
+            [x(aData, c) for each (x in this.watchers)];
+            break;
 
 	case "security-markings":
 	case "privacy-markings":
