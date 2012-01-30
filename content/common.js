@@ -1,6 +1,6 @@
 var EXPORTED_SYMBOLS = ["debug", "extractClassification", "classifySubject",
 			"askForClassification", "setupLists",
-			"externalRecipients"];
+			"tryWarnOnExternalClassified"];
 
 const Ci = Components.interfaces;
 const Cc = Components.classes;
@@ -108,4 +108,48 @@ function externalRecipients(recipients) {
 	}
     }
     return false;
+}
+
+function tryWarnOnExternalClassified(window,
+				     classification,
+				     to, cc, bcc)
+{
+    var ret = true;
+
+    /* see if want to warn on sending classified email to
+     * external recipients if this is not unclassified -
+     * assume unclassified is the first element in
+     * security-markings */
+    debug("Message is classified: " + classification +
+	  "[" + Prefs["security-markings"].indexOf(classification) +
+	  "]");
+    if (Prefs["warn-external-classified"] &&
+	Prefs["security-markings"].indexOf(classification) > 0) {
+	debug("Checking for external recipients...");
+	/* to, cc and bcc are strings of comma-separated email addresses */
+	for each (recipients in [to, cc, bcc]) {
+	    if (externalRecipients(recipients)) {
+		if (!window) {
+		    /* get main window if none supplied */
+		    window = Cc["@mozilla.org/appshell/window-mediator;1"]
+			.getService(Ci.nsIWindowMediator)
+			.getMostRecentWindow("mail:3pane")
+		}
+		ret = Cc["@mozilla.org/embedcomp/prompt-service;1"]
+		    .getService(Ci.nsIPromptService)
+		    .confirm(window,
+			     "External recipients for classified email",
+			     "This " + classification + " classified " +
+			     "email is addressed to external recipients " +
+			     "(outside of the " + Prefs["internal-domain"] +
+			     " " + "domain) - " +
+			     "are you sure you want to do this?");
+		if (!ret) {
+		    debug("tryWarnOnExternalClassified: User selected to cancel send");
+		    break;
+		}
+	    }
+	}
+    }
+    return ret;
 }

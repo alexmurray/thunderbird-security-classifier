@@ -27,10 +27,10 @@ let hook = {
 		debug("Error doing hack for params: " + e);
 	    }
 	}
-	return this.onMessageBeforeSendOrPopout(aAddress, aEditor, aStatus, false);
+	return this.onMessageBeforeSendOrPopout_early(aAddress, aEditor, aStatus, false);
     },
-    /* support master conversations */
-    onMessageBeforeSendOrPopout: function (aAddress, aEditor, aStatus, aPopout) {
+    /* support master conversations - get early*/
+    onMessageBeforeSendOrPopout_early: function (aAddress, aEditor, aStatus, aPopout) {
 	if (!aPopout && !aStatus.canceled) {
 	    let params = aAddress.params;
 	    var classification;
@@ -47,23 +47,35 @@ let hook = {
 		}
 	    }
 	    if (classification.security) {
-		/* set classification in message body too */
-		var marking = classification.security;
-		if (classification.privacy) {
-		    marking += ":" + classification.privacy;
-		}
-		/* USE * to highlight since is plain text */
-		aEditor.value = "*" + marking + "*\n\n" + aEditor.value;
+		/* TODO: refactor tryWarnOnExternalClassified() to
+		 * take arrays of addresses rather than dealing with
+		 * them as one big string */
+		var ret = tryWarnOnExternalClassified(null,
+						      classification.security,
+						      aAddress.to.join(", "),
+						      aAddress.cc.join(", "),
+						      aAddress.bcc.join(", "));
+		if (ret){
+		    /* set classification in message body too */
+		    var marking = classification.security;
+		    if (classification.privacy) {
+			marking += ":" + classification.privacy;
+		    }
+		    /* USE * to highlight since is plain text */
+		    aEditor.value = "*" + marking + "*\n\n" + aEditor.value;
 
-		/* add to otherRandomHeaders in params to set
-		   X-Protective-Marking header as per Email Protective
-		   Marking Standard for the Australian Government
-		   October 2005 -
-		   http://www.finance.gov.au/e-government/security-and-authentication/docs/Email_Protective.pdf */
-		params.otherRandomHeaders = ((params.otherRandomHeaders ?
-					      params.otherRandomHeaders : "") +
-					     "X-Protective-Marking: VER=2005.6, NS=gov.au, SEC=" +
-					     marking + ", ORIGIN=" + params.identity.email + "\n");
+		    /* add to otherRandomHeaders in params to set
+		       X-Protective-Marking header as per Email Protective
+		       Marking Standard for the Australian Government
+		       October 2005 -
+		       http://www.finance.gov.au/e-government/security-and-authentication/docs/Email_Protective.pdf */
+		    params.otherRandomHeaders = ((params.otherRandomHeaders ?
+						  params.otherRandomHeaders : "") +
+						 "X-Protective-Marking: VER=2005.6, NS=gov.au, SEC=" +
+						 marking + ", ORIGIN=" + params.identity.email + "\n");
+		} else {
+		    aStatus.canceled = true;
+		}
 	    } else {
 		aStatus.canceled = true;
 	    }
