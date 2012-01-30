@@ -47,15 +47,13 @@ let hook = {
 		}
 	    }
 	    if (classification.security) {
-		/* TODO: refactor tryWarnOnExternalClassified() to
-		 * take arrays of addresses rather than dealing with
-		 * them as one big string */
 		var ret = tryWarnOnExternalClassified(null,
 						      classification.security,
-						      aAddress.to.join(", "),
-						      aAddress.cc.join(", "),
-						      aAddress.bcc.join(", "));
-		if (ret){
+						      [].concat(aAddress.to,
+								aAddress.cc,
+								aAddress.bcc));
+
+		if (ret) {
 		    /* set classification in message body too */
 		    var marking = classification.security;
 		    if (classification.privacy) {

@@ -92,28 +92,9 @@ function setupLists(securityList, privacyList) {
     privacyList.selectedIndex = 0;
 }
 
-function externalRecipients(recipients) {
-    /* extract server parts of addresses and compare this to the
-     * internal-domain */
-    debug("Checking recipients: " + recipients);
-    for each (match in recipients.match(/@[a-z0-9._-]+/gi)) {
-	debug("checking match: " + match);
-	/* check the server part of each email - strip @ which is
-	 * first char */
-	var server = match.slice(1);
-	debug("Checking recipient server: " + server);
-	if (!(server.match(Prefs["internal-domain"]))) {
-	    debug("EXTERNAL SERVER: " + server);
-	    return true;
-	}
-    }
-    return false;
-}
-
 function tryWarnOnExternalClassified(window,
 				     classification,
-				     to, cc, bcc)
-{
+				     recipients) {
     var ret = true;
 
     /* see if want to warn on sending classified email to
@@ -125,10 +106,12 @@ function tryWarnOnExternalClassified(window,
 	  "]");
     if (Prefs["warn-external-classified"] &&
 	Prefs["security-markings"].indexOf(classification) > 0) {
-	debug("Checking for external recipients...");
-	/* to, cc and bcc are strings of comma-separated email addresses */
-	for each (recipients in [to, cc, bcc]) {
-	    if (externalRecipients(recipients)) {
+	debug("Checking for external recipients: " + recipients);
+	/* recipients is an array of email addresses */
+	for each (recipient in recipients) {
+	    /* if we can't find internal-domain somewhere in the email
+	     * address assume is external */
+	    if (!(recipient.match(Prefs["internal-domain"]))) {
 		if (!window) {
 		    /* get main window if none supplied */
 		    window = Cc["@mozilla.org/appshell/window-mediator;1"]
@@ -146,7 +129,7 @@ function tryWarnOnExternalClassified(window,
 			     "are you sure you want to do this?");
 		if (!ret) {
 		    debug("tryWarnOnExternalClassified: User selected to cancel send");
-		    break;
+		    return ret;
 		}
 	    }
 	}

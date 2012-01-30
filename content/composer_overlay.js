@@ -6,6 +6,25 @@ const Cr = Components.results;
 Cu.import("resource://security-classifier/common.js");
 Cu.import("resource://security-classifier/prefs.js");
 
+function range(begin, end) {
+    for (let i = begin; i < end; ++i) {
+	yield i;
+    }
+}
+
+function extractAddresses(line) {
+    let emails = {};
+    let fullNames = {};
+    let names = {};
+    let numAddresses = Cc["@mozilla.org/messenger/headerparser;1"]
+	.getService(Ci.nsIMsgHeaderParser)
+	.parseHeadersWithArray(line, emails, names, fullNames);
+    if (numAddresses)
+	return [emails.value[i] for each (i in range(0, numAddresses))];
+    else
+	return [];
+}
+
 function classifyOutgoingMessage() {
     var msgcomposeWindow = document.getElementById("msgcomposeWindow");
     var msg_type = msgcomposeWindow.getAttribute("msgtype");
@@ -34,9 +53,9 @@ function classifyOutgoingMessage() {
 	if (classification.security) {
 	    var ret = tryWarnOnExternalClassified(window,
 						  classification.security,
-						  gMsgCompose.compFields.to,
-						  gMsgCompose.compFields.cc,
-						  gMsgCompose.compFields.bcc);
+						  [].concat(extractAddresses(gMsgCompose.compFields.to),
+							    extractAddresses(gMsgCompose.compFields.cc),
+							    extractAddresses(gMsgCompose.compFields.bcc)));
 	    if (!ret) {
 		return false;
 	    }
