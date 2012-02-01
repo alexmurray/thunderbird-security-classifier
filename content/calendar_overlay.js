@@ -99,7 +99,7 @@ function titleChanged() {
 	/* indexOf returns -1 if not found, and starts at 0 if found,
 	 * but our list has 0 as empty element so incrementing for all
 	 * cases is fine */
-	i = getPrivacyMarkings().indexOf(classification.privacy) + 1;
+	i = Prefs["privacy-markings"].indexOf(classification.privacy) + 1;
 	/* is a valid privacy marker */
 	document.getElementById("privacy-list").selectedIndex = i;
 	if (i >= 0) {

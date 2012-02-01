@@ -169,7 +169,7 @@ function subjectChanged() {
 	/* indexOf returns -1 if not found, and starts at 0 if found,
 	 * but our list has 0 as empty element so incrementing for all
 	 * cases is fine */
-	i = getPrivacyMarkings().indexOf(classification.privacy) + 1;
+	i = Prefs["privacy-markings"].indexOf(classification.privacy) + 1;
 	debug("selecting privacy-list index " + i);
 	document.getElementById("privacy-list").selectedIndex = i;
 	if (i >= 0) {
