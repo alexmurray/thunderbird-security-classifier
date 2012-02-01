@@ -118,18 +118,25 @@ function tryWarnOnExternalClassified(window,
 			.getService(Ci.nsIWindowMediator)
 			.getMostRecentWindow("mail:3pane")
 		}
+		var hideWarning = { value: false };
 		ret = Cc["@mozilla.org/embedcomp/prompt-service;1"]
 		    .getService(Ci.nsIPromptService)
-		    .confirm(window,
-			     "External recipients for classified email",
-			     "This " + classification + " classified " +
-			     "email is addressed to external recipients " +
-			     "(outside of the " + Prefs["internal-domain"] +
-			     " " + "domain) - " +
-			     "are you sure you want to do this?");
+		    .confirmCheck(window,
+				  "External recipients for classified email",
+				  "This " + classification + " classified " +
+				  "email is addressed to external recipients " +
+				  "(outside of the " + Prefs["internal-domain"] +
+				  " " + "domain) - " +
+				  "are you sure you want to do this?",
+				  "Do not show this warning again",
+				  hideWarning);
+		/* ignore hideWarning if user cancelled */
 		if (!ret) {
 		    debug("tryWarnOnExternalClassified: User selected to cancel send");
 		    return ret;
+		} else if (hideWarning.value) {
+		    debug("tryWarnOnExternalClassified: User chose to hide warning in future");
+		    Prefs.setBool("extensions.security-classifier.warn-external-classified", false);
 		}
 	    }
 	}
