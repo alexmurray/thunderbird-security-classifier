@@ -83,9 +83,19 @@ let hook = {
 }
 
 try {
-    Cu.import("resource://conversations/hook.js");
+    Cu.import("resource://conversations/modules/hook.js");
     registerHook(hook);
 } catch (e) {
     /* catch exception so we don't pollute error console when
      * conversations isn't installed */
+    debug("Error registering hook for Conversations - trying previous location: " + e);
+    try {
+	/* try old location of hook.js */
+	Cu.import("resource://conversations/hook.js");
+	registerHook(hook);
+    } catch (e) {
+	/* catch exception so we don't pollute error console when
+	 * conversations isn't installed */
+	debug("Error registering hook for Conversations: " + e);
+    }
 }
