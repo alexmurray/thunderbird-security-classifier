@@ -6,7 +6,7 @@ const Cr = Components.results;
 Cu.import("resource://security-classifier/common.js");
 Cu.import("resource://security-classifier/prefs.js");
 
-function updateTitle() {
+function _updateTitle() {
     var dialog = document.getElementById("calendar-event-dialog");
     var itemTitle = document.getElementById("item-title");
     var title = itemTitle.value;
@@ -38,7 +38,7 @@ onCommandSave = function (aIsClosing) {
 	    dialog._privacy = classification.privacy;
 	}
 	debug("onCommandSave: updating title");
-	updateTitle();
+	_updateTitle();
 
 	if (classification.security) {
 	    debug("calling origonCommandSave");
@@ -55,7 +55,7 @@ function setSecurity (security) {
     // update our copy
     dialog._security = security;
     debug("setSecurity: " + security);
-    updateTitle();
+    _updateTitle();
 
     var privacyList = document.getElementById("privacy-list");
     /* clear privacy list if no security selected */
@@ -71,10 +71,10 @@ function setPrivacy (privacy) {
     // update our copy
     dialog._privacy = privacy;
     debug("setPrivacy: " + privacy);
-    updateTitle();
+    _updateTitle();
 }
 
-function titleChanged() {
+function _titleChanged() {
     var dialog = document.getElementById("calendar-event-dialog");
 
     debug("title changed");
@@ -108,8 +108,8 @@ function titleChanged() {
 	    setPrivacy(null);
 	}
     }
-    debug("updating title");
-    updateTitle();
+    debug("_titleChanged: updating title");
+    _updateTitle();
     return true;
 }
 
@@ -137,10 +137,16 @@ function initDialog() {
     /* disable privacyList until a security marking is selected */
     privacyList.disabled = true;
 
+    // try to extract any existing classification
+    var dialog = document.getElementById("calendar-event-dialog");
+    dialog._security = null;
+    dialog._privacy = null;
+    _titleChanged();
+
     // watch for manual changes to title to enforce our
     // classification
     var itemTitle = document.getElementById("item-title");
-    itemTitle.addEventListener("change", titleChanged, true);
+    itemTitle.addEventListener("change", _titleChanged, true);
 }
 
 window.addEventListener("load", initDialog, true);
