@@ -66,8 +66,16 @@ function classifyOutgoingMessage() {
 	    if (msgcomposeWindow._privacy) {
 		marking += ':' + msgcomposeWindow._privacy;
 	    }
-	    gMsgCompose.compFields.otherRandomHeaders += "X-Protective-Marking: VER=2005.6, NS=gov.au, SEC=" +
-		marking + ", ORIGIN=" + gMsgCompose.identity.email + "\n";
+	    protective_marking = ("VER=2005.6, NS=gov.au, SEC=" +
+				  marking + ", ORIGIN=" + gMsgCompose.identity.email);
+	    if ('setHeader' in gMsgCompose.compFields)
+	    {
+		gMsgCompose.compFields.setHeader("X-Protective-Marking", protective_marking)
+	    }
+	    else
+	    {
+		gMsgCompose.compFields.otherRandomHeaders += "X-Protective-Marking: " + protective_marking + "\n";
+	    }
 
 	    /* set the classification in the message body */
 	    var editor = GetCurrentEditor();
